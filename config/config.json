@@ -1,0 +1,20 @@
+{
+    "Database" : {
+        "server"   : "localhost",
+        "port"     : "5432",
+        "user"     : "yoel",
+        "pass"     : "cascadesheet",
+        "database" : "cotizacion"
+    },
+    "Server" : {
+        "port": "1323",
+        "key": "Mc]-7EEP}vJ{q{P@"
+    },
+    "Email": {
+        "name": "COTIZA WEB",
+        "from": "paul.antezana.2@gmail.com",
+        "password": "Mc]-7EEP}vJ{q{P@",
+        "server": "smtp.gmail.com:465",
+        "host": "smtp.gmail.com"
+    }
+}

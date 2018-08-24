@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Send Email</title>
+</head>
+<body>
+    <div style="font-family: sans-serif !important;">
+        <main style="color: #616161; line-height: 1.5em; padding-top: 1rem; padding-bottom: 1rem">
+            <div style="max-width: 700px; margin-right: auto; margin-left: auto">
+                <p>Hola: {{.UserName}}</p>
+                <p>Email: {{.Email}}</p>
+                <p>Recibimos una solicitud para restablecer tu contraseña de sss</p>
+                <p>Ingresar este código en el sistema para restablecer la contraseña</p>
+                <pre style="padding: 10px; background-color: #f2f2f2; border-left: 1px solid #ccc; border-right: 1px solid #ccc; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; border: 1px solid #ddd; font-size: 1.3rem;"><code>{{.Key}}</code></pre>
+            </div>
+        </main>
+        <footer style="text-align: center; color: #616161; padding-top: 3rem; padding-bottom: 3rem">
+            <div class="container">
+                <p>yoel.antezana@gmail.com</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
