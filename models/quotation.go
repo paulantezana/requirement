@@ -10,6 +10,7 @@ type Quotation struct {
 	Winner        bool      `json:"winner"`         // Final Winner set by admin
 	WinnerLevel   uint      `json:"winner_level"`   // Winner casting calculate system
 	SuggestWinner bool      `json:"suggest_winner"` // Winner suggestion by user
+    DeliverDate time.Time `json:"deliver_date"`
 	Observation   string    `json:"observation"`
 
 	ProviderID    uint `json:"provider_id"`

@@ -30,8 +30,7 @@ func GetProducts(c echo.Context) error {
 	var total uint
 	products := make([]models.Product, 0)
 
-	if err := db.Where("name LIKE ?", "%"+request.Search+"%").
-		Or("description LIKE ?", "%"+request.Search+"%").
+	if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
 		Order("id desc").
 		Offset(offset).Limit(request.Limit).Find(&products).
 		Offset(-1).Limit(-1).Count(&total).
@@ -79,8 +78,7 @@ func GetProductSearch(c echo.Context) error {
 
 	// Execute instructions
 	products := make([]models.Product, 0)
-	if err := db.Where("name LIKE ?", "%"+request.Search+"%").
-		Or("description LIKE ?", "%"+request.Search+"%").
+	if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
 		Limit(5).Find(&products).Error; err != nil {
 		return err
 	}
@@ -90,6 +88,7 @@ func GetProductSearch(c echo.Context) error {
 		customProducts = append(customProducts, models.Product{
 			ID:   product.ID,
 			Name: product.Name,
+			UnitMeasure: product.UnitMeasure,
 		})
 	}
 

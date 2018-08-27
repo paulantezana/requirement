@@ -2,13 +2,10 @@ package models
 
 import (
 	"mime/multipart"
-	"time"
 )
 
 type User struct {
 	ID          uint                   `json:"id" gorm:"primary_key"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
 	DNI         string                 `json:"dni" gorm:" type:varchar(15); unique; not null"`
 	FirstName   string                 `json:"first_name" gorm:"type:varchar(128)"`
 	LastName    string                 `json:"last_name" gorm:"type:varchar(128)"`

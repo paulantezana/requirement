@@ -30,7 +30,7 @@ func GetProviders(c echo.Context) error {
 	var total uint
 	providers := make([]models.Provider, 0)
 
-	if err := db.Where("name LIKE ?", "%"+request.Search+"%").
+	if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
 		Or("ruc LIKE ?", "%"+request.Search+"%").
 		Order("id desc").
 		Offset(offset).Limit(request.Limit).Find(&providers).
@@ -78,7 +78,7 @@ func GetProviderSearch(c echo.Context) error {
 
 	// Execute instructions
 	providers := make([]models.Provider, 0)
-	if err := db.Where("name LIKE ?", "%"+request.Search+"%").
+	if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
 		Or("ruc LIKE ?", "%"+request.Search+"%").
 		Limit(5).Find(&providers).Error; err != nil {
 		return err

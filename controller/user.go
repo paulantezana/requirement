@@ -68,7 +68,7 @@ func Login(c echo.Context) error {
 	})
 }
 
-func ForgoutSearch(c echo.Context) error {
+func ForgotSearch(c echo.Context) error {
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
 		return err
@@ -99,7 +99,7 @@ func ForgoutSearch(c echo.Context) error {
 	}
 
 	// SEND EMAIL get html template
-	t, err := template.ParseFiles("utilities/email.html")
+	t, err := template.ParseFiles("templates/email.html")
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
@@ -125,7 +125,7 @@ func ForgoutSearch(c echo.Context) error {
 	})
 }
 
-func ForgoutValidate(c echo.Context) error {
+func ForgotValidate(c echo.Context) error {
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
 		return err
@@ -151,7 +151,7 @@ func ForgoutValidate(c echo.Context) error {
 	})
 }
 
-func ForgoutChange(c echo.Context) error {
+func ForgotChange(c echo.Context) error {
 	xUser := models.User{}
 	user := models.User{}
 	if err := c.Bind(&xUser); err != nil {
@@ -184,7 +184,7 @@ func ForgoutChange(c echo.Context) error {
 	})
 }
 
-func GetUsuarios(c echo.Context) error {
+func GetUsers(c echo.Context) error {
 	// Get data request
 	request := utilities.Request{}
 	if err := c.Bind(&request); err != nil {
@@ -206,10 +206,10 @@ func GetUsuarios(c echo.Context) error {
 	users := make([]models.User, 0)
 
 	// Find users
-	if err := db.Where("user_name LIKE ?", "%"+request.Search+"%").
-		Or("dni LIKE ?", "%"+request.Search+"%").
-		Or("last_name LIKE ?", "%"+request.Search+"%").
-		Or("first_name LIKE ?", "%"+request.Search+"%").
+	if err := db.Where("lower(user_name) LIKE lower(?)", "%"+request.Search+"%").
+		Or("lower(dni) LIKE lower(?)", "%"+request.Search+"%").
+		Or("lower(last_name) LIKE lower(?)", "%"+request.Search+"%").
+		Or("lower(first_name) LIKE lower(?)", "%"+request.Search+"%").
 		Order("id desc").
 		Offset(offset).Limit(request.Limit).Find(&users).
 		Offset(-1).Limit(-1).Count(&total).
@@ -244,7 +244,7 @@ func GetUsuarios(c echo.Context) error {
 	})
 }
 
-func GetUsuarioByID(c echo.Context) error {
+func GetUserByID(c echo.Context) error {
 	// Get data request
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
@@ -267,7 +267,7 @@ func GetUsuarioByID(c echo.Context) error {
 	})
 }
 
-func CreateUsuario(c echo.Context) error {
+func CreateUser(c echo.Context) error {
 	// Get data request
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
@@ -305,7 +305,7 @@ func CreateUsuario(c echo.Context) error {
 	})
 }
 
-func UpdateUsuario(c echo.Context) error {
+func UpdateUser(c echo.Context) error {
 	// Get data request
 	newUser := models.User{}
 	if err := c.Bind(&newUser); err != nil {
@@ -344,7 +344,7 @@ func UpdateUsuario(c echo.Context) error {
 	})
 }
 
-func DeleteUsuario(c echo.Context) error {
+func DeleteUser(c echo.Context) error {
 	// Get data request
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {

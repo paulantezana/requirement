@@ -7,6 +7,7 @@ import (
 	"net/smtp"
 )
 
+// SendEmail using gmail server nmtp
 func SendEmail(to string, subject string, tem string) error {
 	c := GetConfig()
 

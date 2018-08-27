@@ -114,12 +114,26 @@ func GetQuotations(c echo.Context) error {
 	})
 }
 
-type comparativeTableResponse struct {
+type ctResponseRequire struct {
 	ID          uint    `json:"id"`
 	Amount      float32 `json:"amount"`
 	Name        string  `json:"name"`
 	UnitMeasure string  `json:"unit_measure"`
 	Observation string  `json:"observation"`
+}
+
+// Quotations
+type ctResponseQuotation struct {
+    ProviderID          uint `json:"provider_id"`
+    QuotationID      uint `json:"quotation_id"`
+    ProviderName        string `json:"provider_name"`
+    UnitPrice float32 `json:"unit_price"`
+    Sequence uint `json:"sequence"`
+}
+
+type comparativeTable struct {
+    CTResponseQuotations []ctResponseQuotation `json:"ct_response_quotations"`
+    CTResponseRequires []ctResponseRequire `json:"ct_response_requires"`
 }
 
 func ComparativeTable(c echo.Context) error {
@@ -134,19 +148,48 @@ func ComparativeTable(c echo.Context) error {
 	defer db.Close()
 
 	// Query
-	comparativeTableResponses := make([]comparativeTableResponse, 0)
+    ctResponseRequires := make([]ctResponseRequire, 0)
 	if err := db.Table("requires").
 		Select("requires.id, products.name, requires.amount, requires.unit_measure").
 		Joins("INNER JOIN products on requires.product_id = products.id").
 		Where("requires.requirement_id = ?", requirement.ID).
 		Order("requires.id asc").
-		Scan(&comparativeTableResponses).Error; err != nil {
+		Scan(&ctResponseRequires).Error; err != nil {
 		return err
 	}
 
+	// -----------------------------------------------------------
+    // Query Quotations ------------------------------------------
+    // -----------------------------------------------------------
+    ctResponseQuotations := make([]ctResponseQuotation, 0)
+    if err := db.Table("providers").
+        Select("providers.id as provider_id, quotations.id as quotation_id, providers.name as provider_name, quotation_details.unit_price").
+        Joins("INNER JOIN quotations on providers.id = quotations.provider_id").
+        Joins("INNER JOIN quotation_details on quotations.id = quotation_details.quotation_id").
+        Where("quotations.requirement_id = ?", requirement.ID).
+        Order("quotations.winner_level asc").
+        Scan(&ctResponseQuotations).Error; err != nil {
+            return err
+    }
+
+    // Add column Sequence
+    sequence := 1
+    separate := len(ctResponseRequires)
+    for i := 0; i < len(ctResponseQuotations); i++  {
+        if i >= separate {
+            sequence ++
+            separate = len(ctResponseRequires) *  sequence
+        }
+        ctResponseQuotations[i].Sequence = uint(sequence)
+    }
+
+    // Response data
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Data:    comparativeTableResponses,
+		Data:    comparativeTable{
+            CTResponseQuotations : ctResponseQuotations,
+            CTResponseRequires : ctResponseRequires,
+        },
 	})
 }
 

@@ -32,9 +32,9 @@ func GetRequirements(c echo.Context) error {
 	var total uint
 	requirements := make([]models.Requirement, 0)
 
-	if err := db.Where("name LIKE ?", "%"+request.Search+"%").
-		Or("destination LIKE ?", "%"+request.Search+"%").
-		Or("claimant LIKE ?", "%"+request.Search+"%").
+	if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
+		Or("lower(destination) LIKE lower(?)", "%"+request.Search+"%").
+		Or("lower(claimant) LIKE lower(?)", "%"+request.Search+"%").
 		Order("id desc").
 		Offset(offset).Limit(request.Limit).Find(&requirements).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
