@@ -1,0 +1,155 @@
+FORMAT: 1A
+HOST: https://review-server-ql.herokuapp.com/api/v1
+
+# API del sistema de requerimientos
+Documentacion de la api del sistema de requerimeinto
+
+# Group User
+## User Collection [/user]
+### Todo los usuarios [GET /user/all]
++ current_page (integer) - pagina actual.
++ limit (integer) - Limit.
++ search (string) - Buscador.
++ Request (application/json)
+    + Headers
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJkbmkiOiI3Mzk3NTc1NSIsImZpcnN0X25hbWUiOiJwYXVsIiwibGFzdF9uYW1lIjoiYW50ZXphbmEgeWFuYSIsInVzZXJfbmFtZSI6InlvZWwiLCJnZW5kZXIiOiIxIiwicGFzc3dvcmQiOiIiLCJvbGRfcGFzc3dvcmQiOiIiLCJlbWFpbCI6InlvZWwuYW50ZXphbmFAZ21haWwuY29tIiwiYXZhdGFyIjoic3RhdGljL3Byb2ZpbGVzLzRiZjUxMjJmMzQ0NTU0YzUzYmRlMmViYjhjZDJiN2UzZDE2MDBhZDYzMWMzODVhNWQ3Y2NlMjNjNzc4NTQ1OWEuanBnIiwicGljdHVyZSI6bnVsbCwicHJvZmlsZSI6InVzZXIiLCJrZXkiOiI1ODM3ODM4Iiwic3RhdGUiOnRydWUsInJlcXVpcmVtZW50cyI6bnVsbCwicXVvdGF0aW9ucyI6bnVsbH0sImV4cCI6MTUzNTQ1MDA4NCwiaXNzIjoicGF1bGFudGV6YW5hIn0.vJ_5YDuKkhkeqH1ALocq13vkf2M_XGzCFuIjacMtxVk
+    + Body
+        {
+            "current_page":2,
+            "limit":10,
+            "search":"sicuani"
+        }
++ Response 200 (application/json)
+    {
+        "message": "",
+        "success": true,
+        "data": [
+            {
+                "id": 8,
+                "dni": "65165165",
+                "first_name": "sicuani",
+                "last_name": "",
+                "user_name": "sicuani",
+                "gender": "0",
+                "password": "fb3d05ca5ddaed4dbcc0b620e9a82b08f439bddec0586032832420d7909133ae",
+                "old_password": "",
+                "email": "sicuani@gmail.com",
+                "avatar": "static/logo.png",
+                "picture": null,
+                "profile": "user",
+                "key": "",
+                "state": true,
+                "requirements": null,
+                "quotations": null
+            },
+            {
+                "id": 7,
+                "dni": "65151651",
+                "first_name": "",
+                "last_name": "",
+                "user_name": "hola",
+                "gender": "",
+                "password": "fb3d05ca5ddaed4dbcc0b620e9a82b08f439bddec0586032832420d7909133ae",
+                "old_password": "",
+                "email": "holass@gmail.com",
+                "avatar": "static/logo.png",
+                "picture": null,
+                "profile": "user",
+                "key": "",
+                "state": true,
+                "requirements": null,
+                "quotations": null
+            }
+        ],
+        "total": 7,
+        "current_page": 1
+    }
+
+### Crear usuario [POST /user/create]
+
++ dni (string) - Numero de DNI del usuario.
++ email (string) - Correo electronico.
++ first_name (string) - Nombres.
++ gender (string) - genero 0 = Femenino | 1 = Masculino.
++ last_name (string) - Apellidos.
++ password (string) - Contraseña.
++ profile (string) - Perfil admin | user.
++ state (bolean) - estado.
++ user_name (string) - Nombre de usuario.
++ Request (application/json)
+    + Headers
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJkbmkiOiI3Mzk3NTc1NSIsImZpcnN0X25hbWUiOiJwYXVsIiwibGFzdF9uYW1lIjoiYW50ZXphbmEgeWFuYSIsInVzZXJfbmFtZSI6InlvZWwiLCJnZW5kZXIiOiIxIiwicGFzc3dvcmQiOiIiLCJvbGRfcGFzc3dvcmQiOiIiLCJlbWFpbCI6InlvZWwuYW50ZXphbmFAZ21haWwuY29tIiwiYXZhdGFyIjoic3RhdGljL3Byb2ZpbGVzLzRiZjUxMjJmMzQ0NTU0YzUzYmRlMmViYjhjZDJiN2UzZDE2MDBhZDYzMWMzODVhNWQ3Y2NlMjNjNzc4NTQ1OWEuanBnIiwicGljdHVyZSI6bnVsbCwicHJvZmlsZSI6InVzZXIiLCJrZXkiOiI1ODM3ODM4Iiwic3RhdGUiOnRydWUsInJlcXVpcmVtZW50cyI6bnVsbCwicXVvdGF0aW9ucyI6bnVsbH0sImV4cCI6MTUzNTQ1MDA4NCwiaXNzIjoicGF1bGFudGV6YW5hIn0.vJ_5YDuKkhkeqH1ALocq13vkf2M_XGzCFuIjacMtxVk
+    + Body
+        {
+            "dni":"65165165",
+            "email":"yoel.antezana@gmail.com",
+            "first_name":"paul yoel",
+            "gender":"1",
+            "last_name":"antezana yana",
+            "password":"mypassword",
+            "profile":"user",
+            "state":true,
+            "user_name":"yoel"
+        }
++ Response 201 (application/json)
+    {
+        "current_page":0,
+        "data":11,
+        "message":"El usuario yoel se registro exitosamente",
+        "success":true,
+        "total":0
+    }
+
+### Actualizar usuario [PUT /user/update]
+
++ id (integer) - id del usuario.
++ dni (string) - Numero de DNI del usuario.
++ email (string) - Correo electronico.
++ first_name (string) - Nombres.
++ gender (string) - genero 0 = Femenino | 1 = Masculino.
++ last_name (string) - Apellidos.
++ profile (string) - Perfil admin | user.
++ state (bolean) - estado.
++ user_name (string) - Nombre de usuario.
++ Request (application/json)
+    + Headers
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJkbmkiOiI3Mzk3NTc1NSIsImZpcnN0X25hbWUiOiJwYXVsIiwibGFzdF9uYW1lIjoiYW50ZXphbmEgeWFuYSIsInVzZXJfbmFtZSI6InlvZWwiLCJnZW5kZXIiOiIxIiwicGFzc3dvcmQiOiIiLCJvbGRfcGFzc3dvcmQiOiIiLCJlbWFpbCI6InlvZWwuYW50ZXphbmFAZ21haWwuY29tIiwiYXZhdGFyIjoic3RhdGljL3Byb2ZpbGVzLzRiZjUxMjJmMzQ0NTU0YzUzYmRlMmViYjhjZDJiN2UzZDE2MDBhZDYzMWMzODVhNWQ3Y2NlMjNjNzc4NTQ1OWEuanBnIiwicGljdHVyZSI6bnVsbCwicHJvZmlsZSI6InVzZXIiLCJrZXkiOiI1ODM3ODM4Iiwic3RhdGUiOnRydWUsInJlcXVpcmVtZW50cyI6bnVsbCwicXVvdGF0aW9ucyI6bnVsbH0sImV4cCI6MTUzNTQ1MDA4NCwiaXNzIjoicGF1bGFudGV6YW5hIn0.vJ_5YDuKkhkeqH1ALocq13vkf2M_XGzCFuIjacMtxVk
+    + Body
+        {
+            "id": 5,
+            "dni":"65165165",
+            "email":"yoel.antezana@gmail.com",
+            "first_name":"paul yoel",
+            "gender":"1",
+            "last_name":"antezana yana",
+            "profile":"user",
+            "state":true,
+            "user_name":"yoel"
+        }
++ Response 200 (application/json)
+    {
+        "current_page":0,
+        "data":11,
+        "message":"El usuario yoel se actualizo exitosamente",
+        "success":true,
+        "total":0
+    }
+
+### Eliminar usuario [DELETE /user/delete]
+
++ id (integer) - id del usuario.
++ Request (application/json)
+    + Headers
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJkbmkiOiI3Mzk3NTc1NSIsImZpcnN0X25hbWUiOiJwYXVsIiwibGFzdF9uYW1lIjoiYW50ZXphbmEgeWFuYSIsInVzZXJfbmFtZSI6InlvZWwiLCJnZW5kZXIiOiIxIiwicGFzc3dvcmQiOiIiLCJvbGRfcGFzc3dvcmQiOiIiLCJlbWFpbCI6InlvZWwuYW50ZXphbmFAZ21haWwuY29tIiwiYXZhdGFyIjoic3RhdGljL3Byb2ZpbGVzLzRiZjUxMjJmMzQ0NTU0YzUzYmRlMmViYjhjZDJiN2UzZDE2MDBhZDYzMWMzODVhNWQ3Y2NlMjNjNzc4NTQ1OWEuanBnIiwicGljdHVyZSI6bnVsbCwicHJvZmlsZSI6InVzZXIiLCJrZXkiOiI1ODM3ODM4Iiwic3RhdGUiOnRydWUsInJlcXVpcmVtZW50cyI6bnVsbCwicXVvdGF0aW9ucyI6bnVsbH0sImV4cCI6MTUzNTQ1MDA4NCwiaXNzIjoicGF1bGFudGV6YW5hIn0.vJ_5YDuKkhkeqH1ALocq13vkf2M_XGzCFuIjacMtxVk
+    + Body
+        {
+            "id": 5
+        }
++ Response 200 (application/json)
+    {
+        "current_page":0,
+        "data":11,
+        "message":"El usuario yoel se elimino exitosamente",
+        "success":true,
+        "total":0
+    }
