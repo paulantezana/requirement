@@ -11,11 +11,13 @@ type Request struct {
 	Type        uint   `json:"query"`
 }
 
+// RequestRequire use only in requirements
 type RequestRequire struct {
 	RequirementID uint `json:"requirement_id"`
 	Type          uint `json:"query"`
 }
 
+// RequestQuotation use only in quotations
 type RequestQuotation struct {
 	RequirementID uint `json:"requirement_id"`
 	ID            uint `json:"id"`

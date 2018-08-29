@@ -52,7 +52,7 @@ func GetRequirements(c echo.Context) error {
 				Name: product.Name,
 			})
 		}
-		return c.JSON(http.StatusCreated, utilities.Response{
+		return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 			Success:     true,
 			Data:        customRequirements,
 			Total:       total,
@@ -60,7 +60,7 @@ func GetRequirements(c echo.Context) error {
 		})
 	}
 	// Return response
-	return c.JSON(http.StatusCreated, utilities.Response{
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:     true,
 		Data:        requirements,
 		Total:       total,

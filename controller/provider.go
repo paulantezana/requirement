@@ -49,7 +49,7 @@ func GetProviders(c echo.Context) error {
 				Name: provider.Name,
 			})
 		}
-		return c.JSON(http.StatusCreated, utilities.Response{
+		return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 			Success:     true,
 			Data:        customProvider,
 			Total:       total,
@@ -57,7 +57,7 @@ func GetProviders(c echo.Context) error {
 		})
 	}
 	// Return response
-	return c.JSON(http.StatusCreated, utilities.Response{
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:     true,
 		Data:        providers,
 		Total:       total,

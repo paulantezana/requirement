@@ -107,7 +107,7 @@ func GetQuotations(c echo.Context) error {
 	total := len(responseQuotations)
 
 	// Return response
-	return c.JSON(http.StatusCreated, utilities.Response{
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success: true,
 		Data:    responseQuotations,
 		Total:   uint(total),

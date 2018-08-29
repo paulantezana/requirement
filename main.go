@@ -1,15 +1,15 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/labstack/gommon/log"
+	"github.com/paulantezana/requirement/api"
 	"github.com/paulantezana/requirement/config"
 	"github.com/paulantezana/requirement/models"
-    "github.com/paulantezana/requirement/api"
 )
 
 func main() {
@@ -18,8 +18,6 @@ func main() {
 	e.Use(middleware.Recover())
 
 	migration()
-	//initial()
-	//TestBorrame()
 
 	// COR
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -46,10 +44,7 @@ func main() {
 	e.Logger.Fatal(e.Start(":" + port))
 }
 
-func TestBorrame() {
-	fmt.Println("holaaaaaaaaaaaaa")
-}
-
+// migration Init migration database
 func migration() {
 	db := config.GetConnection()
 	defer db.Close()
@@ -75,21 +70,36 @@ func migration() {
 	db.Model(&models.Quotation{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
 	db.Model(&models.Quotation{}).AddForeignKey("provider_id", "providers(id)", "RESTRICT", "RESTRICT")
 	db.Model(&models.Quotation{}).AddForeignKey("requirement_id", "requirements(id)", "RESTRICT", "RESTRICT")
-}
-func initial() {
-	db := config.GetConnection()
-	defer db.Close()
 
-	conf := models.Setting{
-		Company:        "ABC Company",
-		City:           "Sicuani - Cusco - Perú",
-		Identification: "20563258412",
-		Email:          "empresa@empresa.com",
-		Item:           10,
-		Quotations:     3,
+	// -------------------------------------------------------------
+	// INSERT FIST DATA --------------------------------------------
+	// -------------------------------------------------------------
+	usr := models.User{}
+	db.First(&usr)
+	// hash password
+	cc := sha256.Sum256([]byte("admin"))
+	pwd := fmt.Sprintf("%x", cc)
+	// create model
+	user := models.User{
+		UserName: "admin",
+		Password: pwd,
+		Email:    "yoel.antezana@gmail.com",
+	}
+	// insert database
+	if usr.ID == 0 {
+		db.Create(&user)
 	}
 
-	if err := db.Create(&conf).Error; err != nil {
-		log.Fatal(err)
+	// First Setting
+	cg := models.Setting{}
+	db.First(&cg)
+	co := models.Setting{
+		Item:       10,
+		Company:    "ABC Company",
+		Quotations: 3,
+	}
+	// Insert database
+	if cg.ID == 0 {
+		db.Create(&co)
 	}
 }

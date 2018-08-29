@@ -49,7 +49,7 @@ func GetProducts(c echo.Context) error {
 				Name: product.Name,
 			})
 		}
-		return c.JSON(http.StatusCreated, utilities.Response{
+		return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 			Success:     true,
 			Data:        customProducts,
 			Total:       total,
@@ -57,7 +57,7 @@ func GetProducts(c echo.Context) error {
 		})
 	}
 	// Return response
-	return c.JSON(http.StatusCreated, utilities.Response{
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:     true,
 		Data:        products,
 		Total:       total,

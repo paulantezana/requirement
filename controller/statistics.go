@@ -37,7 +37,7 @@ func TopProviderWinner(c echo.Context) error {
 	var total uint
 	db.Model(models.Provider{}).Count(&total)
 
-	return c.JSON(http.StatusOK, utilities.Response{
+	return c.JSON(http.StatusOK, utilities.ResponsePaginate{
 		Success: true,
 		Data:    providerTops,
 		Total:   total,
@@ -72,7 +72,7 @@ func TopUsers(c echo.Context) error {
 	var total uint
 	db.Model(models.User{}).Count(&total)
 
-	return c.JSON(http.StatusOK, utilities.Response{
+	return c.JSON(http.StatusOK, utilities.ResponsePaginate{
 		Success: true,
 		Data:    userTops,
 		Total:   total,
@@ -106,7 +106,7 @@ func TopProducts(c echo.Context) error {
 	var total uint
 	db.Model(models.Product{}).Count(&total)
 
-	return c.JSON(http.StatusOK, utilities.Response{
+	return c.JSON(http.StatusOK, utilities.ResponsePaginate{
 		Success: true,
 		Data:    productTops,
 		Total:   total,
@@ -138,7 +138,7 @@ func TopRequirements(c echo.Context) error {
 	var total uint
 	db.Model(models.Requirement{}).Count(&total)
 
-	return c.JSON(http.StatusOK, utilities.Response{
+	return c.JSON(http.StatusOK, utilities.ResponsePaginate{
 		Success: true,
 		Data:    requirementStateTops,
 		Total:   total,

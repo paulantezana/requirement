@@ -228,7 +228,7 @@ func GetUsers(c echo.Context) error {
 				UserName: user.UserName,
 			})
 		}
-		return c.JSON(http.StatusCreated, utilities.Response{
+		return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 			Success:     true,
 			Data:        customUsers,
 			Total:       total,
@@ -236,7 +236,7 @@ func GetUsers(c echo.Context) error {
 		})
 	}
 	// Return response
-	return c.JSON(http.StatusCreated, utilities.Response{
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:     true,
 		Data:        users,
 		Total:       total,
