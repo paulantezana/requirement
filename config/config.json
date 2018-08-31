@@ -4,7 +4,7 @@
         "port"     : "5432",
         "user"     : "yoel",
         "pass"     : "cascadesheet",
-        "database" : "cotizacion"
+        "database" : "requirement"
     },
     "Server" : {
         "port": "1323",

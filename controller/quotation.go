@@ -124,16 +124,22 @@ type ctResponseRequire struct {
 
 // Quotations
 type ctResponseQuotation struct {
-    ProviderID          uint `json:"provider_id"`
-    QuotationID      uint `json:"quotation_id"`
-    ProviderName        string `json:"provider_name"`
-    UnitPrice float32 `json:"unit_price"`
-    Sequence uint `json:"sequence"`
+	QuotationID     uint      `json:"quotation_id"`
+	UnitPrice       float32   `json:"unit_price"`
+	Sequence        uint      `json:"sequence"`
 }
 
+// Providers
+type ctResponseProvider struct {
+    Name string `json:"name"`
+    Manager string `json:"manager"`
+    DeliverDate time.Time `json:"deliver_date"`
+} 
+
 type comparativeTable struct {
-    CTResponseQuotations []ctResponseQuotation `json:"ct_response_quotations"`
-    CTResponseRequires []ctResponseRequire `json:"ct_response_requires"`
+	CTResponseQuotations []ctResponseQuotation `json:"ct_response_quotations"`
+	CTResponseRequires   []ctResponseRequire   `json:"ct_response_requires"`
+    CTResponseProviders []ctResponseProvider `json:"ct_response_providers"`
 }
 
 func ComparativeTable(c echo.Context) error {
@@ -147,8 +153,10 @@ func ComparativeTable(c echo.Context) error {
 	db := config.GetConnection()
 	defer db.Close()
 
-	// Query
-    ctResponseRequires := make([]ctResponseRequire, 0)
+    // -----------------------------------------------------------
+    // Query Requires ------------------------------------------
+    // -----------------------------------------------------------
+	ctResponseRequires := make([]ctResponseRequire, 0)
 	if err := db.Table("requires").
 		Select("requires.id, products.name, requires.amount, requires.unit_measure").
 		Joins("INNER JOIN products on requires.product_id = products.id").
@@ -159,37 +167,51 @@ func ComparativeTable(c echo.Context) error {
 	}
 
 	// -----------------------------------------------------------
-    // Query Quotations ------------------------------------------
+	// Query Quotations Quotation Detail  ------------------------
+	// -----------------------------------------------------------
+	ctResponseQuotations := make([]ctResponseQuotation, 0)
+	if err := db.Table("providers").
+		Select("quotations.id as quotation_id, quotation_details.unit_price").
+		Joins("INNER JOIN quotations on providers.id = quotations.provider_id").
+		Joins("INNER JOIN quotation_details on quotations.id = quotation_details.quotation_id").
+		Where("quotations.requirement_id = ?", requirement.ID).
+		Order("quotations.winner_level asc").
+		Scan(&ctResponseQuotations).Error; err != nil {
+		return err
+	}
+
     // -----------------------------------------------------------
-    ctResponseQuotations := make([]ctResponseQuotation, 0)
-    if err := db.Table("providers").
-        Select("providers.id as provider_id, quotations.id as quotation_id, providers.name as provider_name, quotation_details.unit_price").
-        Joins("INNER JOIN quotations on providers.id = quotations.provider_id").
-        Joins("INNER JOIN quotation_details on quotations.id = quotation_details.quotation_id").
+    // Query Providers  ------------------------------------------
+    // -----------------------------------------------------------
+    ctResponseProviders := make([]ctResponseProvider, 0)
+    if err := db.Table("quotations").
+        Select("providers.name, providers.manager, quotations.deliver_date").
+        Joins("INNER JOIN providers on quotations.provider_id = providers.id").
         Where("quotations.requirement_id = ?", requirement.ID).
         Order("quotations.winner_level asc").
-        Scan(&ctResponseQuotations).Error; err != nil {
-            return err
+        Scan(&ctResponseProviders).Error; err != nil {
+        return err
     }
 
-    // Add column Sequence
-    sequence := 1
-    separate := len(ctResponseRequires)
-    for i := 0; i < len(ctResponseQuotations); i++  {
-        if i >= separate {
-            sequence ++
-            separate = len(ctResponseRequires) *  sequence
-        }
-        ctResponseQuotations[i].Sequence = uint(sequence)
-    }
+	// Add column Sequence
+	sequence := 1
+	separate := len(ctResponseRequires)
+	for i := 0; i < len(ctResponseQuotations); i++ {
+		if i >= separate {
+			sequence++
+			separate = len(ctResponseRequires) * sequence
+		}
+		ctResponseQuotations[i].Sequence = uint(sequence)
+	}
 
-    // Response data
+	// Response data
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Data:    comparativeTable{
-            CTResponseQuotations : ctResponseQuotations,
-            CTResponseRequires : ctResponseRequires,
-        },
+		Data: comparativeTable{
+			CTResponseQuotations: ctResponseQuotations,
+			CTResponseRequires:   ctResponseRequires,
+			CTResponseProviders: ctResponseProviders,
+		},
 	})
 }
 

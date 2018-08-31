@@ -6,6 +6,10 @@ import (
 	"github.com/paulantezana/requirement/models"
 	"github.com/paulantezana/requirement/utilities"
 	"net/http"
+    "fmt"
+    "os"
+    "io"
+    "path"
 )
 
 type GlobalSettings struct {
@@ -95,4 +99,74 @@ func UpdateSetting(c echo.Context) error {
 		Success: true,
 		Data:    con.ID,
 	})
+}
+
+func UploadLogoSetting(c echo.Context) error {
+    // Read form fields
+    idSetting := c.FormValue("id")
+    setting := models.Setting{}
+
+    // get connection
+    db := config.GetConnection()
+    defer db.Close()
+
+    // Validation user exist
+    if db.First(&setting, "id = ?", idSetting).RecordNotFound() {
+        return c.JSON(http.StatusOK, utilities.Response{
+            Success: false,
+            Message: fmt.Sprintf("No se encontró el registro con id %d", setting.ID),
+        })
+    }
+
+    // Source
+    file, err := c.FormFile("logo")
+    if err != nil {
+        return err
+    }
+    src, err := file.Open()
+    if err != nil {
+        return err
+    }
+    defer src.Close()
+
+    // Destination
+    logoSRC := fmt.Sprintf("static/logo%s",path.Ext(file.Filename))
+    dst, err := os.Create(logoSRC)
+    if err != nil {
+        return err
+    }
+    defer dst.Close()
+    setting.Logo = logoSRC
+
+    // Copy
+    if _, err = io.Copy(dst, src); err != nil {
+        return err
+    }
+
+    // Update database user
+    if err := db.Model(&setting).Update(setting).Error; err != nil {
+        return err
+    }
+
+    // Return response
+    return c.JSON(http.StatusOK, utilities.Response{
+        Success: true,
+        Data:    setting.ID,
+    })
+}
+
+func DownloadLogoSetting(c echo.Context) error {
+    // get connection
+    db := config.GetConnection()
+    defer db.Close()
+
+    // Validation user exist
+    setting := models.Setting{}
+    if db.First(&setting).RecordNotFound() {
+        return c.JSON(http.StatusOK, utilities.Response{
+            Success: false,
+            Message: fmt.Sprintf("No se encontró el registro con id %d", setting.ID),
+        })
+    }
+    return c.File(setting.Logo)
 }

@@ -6,10 +6,14 @@ import (
 	"github.com/paulantezana/requirement/config"
 	"github.com/paulantezana/requirement/controller"
 	"github.com/paulantezana/requirement/utilities"
+    "net/http"
 )
 
 // PublicApi public routes
 func PublicApi(e *echo.Echo) {
+    e.GET("/", func(context echo.Context) error {
+        return context.NoContent(http.StatusOK)
+    })
 	pb := e.Group("/api/v1")
 
 	pb.POST("/user/login", controller.Login)
@@ -82,6 +86,8 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/setting/global", controller.GetGlobalSettings)
 	ar.GET("/setting", controller.GetSetting)
 	ar.PUT("/setting", controller.UpdateSetting)
+    ar.POST("/setting/upload/logo", controller.UploadLogoSetting)
+    ar.GET("/setting/download/logo", controller.DownloadLogoSetting)
 
 	// Statistic
 	ar.POST("/statistic/top/provider/winners", controller.TopProviderWinner)

@@ -48,7 +48,7 @@ func ExportRequirementAll(c echo.Context) error {
 		xlsx.SetCellValue("Sheet1", fmt.Sprintf("E%d", currentRow+k), rq.State)
 	}
 
-	fileAddress := "static/reports/requerimeinto.xlsx"
+	fileAddress := "templates/requerimeinto.xlsx"
 
 	err = xlsx.SaveAs("./" + fileAddress)
 	if err != nil {

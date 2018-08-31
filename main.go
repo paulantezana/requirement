@@ -17,6 +17,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	// Initialize migration database
 	migration()
 
 	// COR
@@ -83,6 +84,7 @@ func migration() {
 	user := models.User{
 		UserName: "admin",
 		Password: pwd,
+		Profile: "admin",
 		Email:    "yoel.antezana@gmail.com",
 	}
 	// insert database
@@ -95,7 +97,7 @@ func migration() {
 	db.First(&cg)
 	co := models.Setting{
 		Item:       10,
-		Company:    "ABC Company",
+		Company:    "REQUIREMENT WEB",
 		Quotations: 3,
 	}
 	// Insert database

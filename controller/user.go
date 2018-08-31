@@ -278,7 +278,6 @@ func CreateUser(c echo.Context) error {
 	if len(user.Profile) == 0 {
 		user.Profile = "user"
 	}
-	user.Avatar = "static/logo.png"
 
 	// get connection
 	db := config.GetConnection()
@@ -382,8 +381,6 @@ func UploadAvatarUser(c echo.Context) error {
 	// Read form fields
 	idUser := c.FormValue("id")
 	user := models.User{}
-
-	fmt.Println(c.FormFile("picture"))
 
 	// get connection
 	db := config.GetConnection()

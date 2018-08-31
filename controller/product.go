@@ -86,8 +86,8 @@ func GetProductSearch(c echo.Context) error {
 	customProducts := make([]models.Product, 0)
 	for _, product := range products {
 		customProducts = append(customProducts, models.Product{
-			ID:   product.ID,
-			Name: product.Name,
+			ID:          product.ID,
+			Name:        product.Name,
 			UnitMeasure: product.UnitMeasure,
 		})
 	}
