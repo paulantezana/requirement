@@ -99,7 +99,7 @@ func ForgotSearch(c echo.Context) error {
 	}
 
 	// SEND EMAIL get html template
-	t, err := template.ParseFiles("templates/email.html")
+	t, err := template.ParseFiles("./templates/email.html")
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
@@ -112,7 +112,7 @@ func ForgotSearch(c echo.Context) error {
 	}
 
 	// SEND EMAIL
-	err = config.SendEmail(user.Email, fmt.Sprint(key)+" es el código de recuperación de tu cuenta en SINST", buf.String())
+	err = config.SendEmail(user.Email, fmt.Sprint(key)+" es el código de recuperación de tu cuenta en RQSystem", buf.String())
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
