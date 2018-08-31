@@ -99,6 +99,7 @@ func migration() {
 		Item:       10,
 		Company:    "REQUIREMENT WEB",
 		Quotations: 3,
+		Logo: "static/logo.png",
 	}
 	// Insert database
 	if cg.ID == 0 {

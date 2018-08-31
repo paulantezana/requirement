@@ -7,6 +7,11 @@ import (
 	"github.com/paulantezana/requirement/models"
 	"github.com/paulantezana/requirement/utilities"
 	"net/http"
+    "os"
+    "io"
+    "path/filepath"
+    "github.com/360EntSecGroup-Skylar/excelize"
+    "strings"
 )
 
 func GetProviders(c echo.Context) error {
@@ -136,7 +141,6 @@ func CreateProvider(c echo.Context) error {
 	// Insert provider in database
 	if err := db.Create(&provider).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Success: false,
 			Message: fmt.Sprintf("%s", err),
 		})
 	}
@@ -167,7 +171,6 @@ func UpdateProvider(c echo.Context) error {
 	}
 	if rows == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Success: false,
 			Message: fmt.Sprintf("No se pudo actualizar el registro con el id = %d", provider.ID),
 		})
 	}
@@ -193,7 +196,6 @@ func DeleteProvider(c echo.Context) error {
 	// Validation provider exist
 	if db.First(&provider).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Success: false,
 			Message: fmt.Sprintf("No se encontró el registro con id %d", provider.ID),
 		})
 	}
@@ -201,7 +203,6 @@ func DeleteProvider(c echo.Context) error {
 	// Delete provider in database
 	if err := db.Delete(&provider).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Success: false,
 			Message: fmt.Sprintf("%s", err),
 		})
 	}
@@ -211,4 +212,114 @@ func DeleteProvider(c echo.Context) error {
 		Success: true,
 		Data:    provider.ID,
 	})
+}
+
+func ValidateRucProvider(c echo.Context) error {
+    // Get data request
+    provider := models.Provider{}
+    if err := c.Bind(&provider); err != nil {
+        return err
+    }
+
+    // get connection
+    db := config.GetConnection()
+    defer db.Close()
+
+    // Validations
+    if err := db.Where("ruc = ?", provider.RUC).First(&provider).Error; err != nil {
+        return c.JSON(http.StatusOK, utilities.Response{
+            Success: true,
+            Message: "OK",
+        })
+    }
+
+    // Return response
+    return c.JSON(http.StatusOK, utilities.Response{
+        Success: false,
+        Message: fmt.Sprintf("El número de RUC ya esta registrado"),
+    })
+}
+
+
+func GetTempUploadProvider(c echo.Context) error {
+    return c.File("templates/uploadProviderTemplate.xlsx")
+}
+
+func SetTempUploadProvider(c echo.Context) error {
+    // Source
+    file, err := c.FormFile("file")
+    if err != nil {
+        return err
+    }
+    src, err := file.Open()
+    if err != nil {
+        return err
+    }
+    defer src.Close()
+
+    // Destination
+    auxDir := "temp/provider" + filepath.Ext(file.Filename)
+    dst, err := os.Create(auxDir)
+    if err != nil {
+        return err
+    }
+    defer dst.Close()
+
+    // Copy
+    if _, err = io.Copy(dst, src); err != nil {
+        return err
+    }
+
+    // ---------------------
+    // Read File whit Excel
+    // ---------------------
+    xlsx, err := excelize.OpenFile(auxDir)
+    if err != nil {
+        return err
+    }
+
+    // Prepare
+    providers := make([]models.Provider, 0)
+    ignoreCols := 1
+
+    // Get all the rows in the proveedores(Sheet).
+    rows := xlsx.GetRows("proveedores")
+    for k, row := range rows {
+        if k >= ignoreCols {
+            providers = append(providers, models.Provider{
+                RUC:      strings.TrimSpace(row[0]),
+                Name: strings.TrimSpace(row[1]),
+                Manager: strings.TrimSpace(row[5]),
+                Email:   strings.TrimSpace(row[5]),
+                Phone:   strings.TrimSpace(row[5]),
+                Address:   strings.TrimSpace(row[5]),
+                State:   true,
+            })
+        }
+    }
+
+    // get connection
+    db := config.GetConnection()
+    defer db.Close()
+
+    // Insert providers in database
+    tr := db.Begin()
+    for _, provider := range providers {
+        if err := tr.Create(&provider).Error; err != nil {
+            tr.Rollback()
+            return c.JSON(http.StatusOK, utilities.Response{
+                Success: false,
+                Message: fmt.Sprintf("Ocurrió un error al insertar el proveedores %s con "+
+                    "RUC: %s es posible que este proveedor ya este en la base de datos o los datos son incorrectos, "+
+                    "Error: %s, no se realizo ninguna cambio en la base de datos", provider.Name, provider.RUC, err),
+            })
+        }
+    }
+    tr.Commit()
+
+    // Response success
+    return c.JSON(http.StatusOK, utilities.Response{
+        Success: true,
+        Message: fmt.Sprintf("Se guardo %d registros den la base de datos", len(providers)),
+    })
 }

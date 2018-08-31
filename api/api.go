@@ -58,6 +58,9 @@ func ProtectedApi(e *echo.Echo) {
 	ar.PUT("/provider", controller.UpdateProvider)
 	ar.DELETE("/provider", controller.DeleteProvider)
 	ar.POST("/provider/search", controller.GetProviderSearch)
+	ar.POST("/provider/validate/ruc", controller.ValidateRucProvider)
+    ar.GET("/provider/download/template", controller.GetTempUploadProvider)
+    ar.POST("/provider/upload/template", controller.SetTempUploadProvider)
 
 	// Crud Requirement
 	ar.POST("/requirement/all", controller.GetRequirements)

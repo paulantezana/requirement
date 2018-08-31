@@ -98,26 +98,20 @@ func ForgotSearch(c echo.Context) error {
 	// SEND EMAIL get html template
 	t, err := template.ParseFiles("./templates/email.html")
 	if err != nil {
-	    return c.JSON(http.StatusInternalServerError,utilities.Response{
-	        Message: fmt.Sprintf("%s",err),
-        })
+        c.NoContent(http.StatusInternalServerError)
 	}
 
 	// SEND EMAIL new buffer
 	buf := new(bytes.Buffer)
 	err = t.Execute(buf, user)
 	if err != nil {
-        return c.JSON(http.StatusInternalServerError,utilities.Response{
-            Message: fmt.Sprintf("%s",err),
-        })
+        c.NoContent(http.StatusInternalServerError)
 	}
 
 	// SEND EMAIL
 	err = config.SendEmail(user.Email, fmt.Sprint(key)+" es el código de recuperación de tu cuenta en RQSystem", buf.String())
 	if err != nil {
-        return c.JSON(http.StatusInternalServerError,utilities.Response{
-            Message: fmt.Sprintf("%s",err),
-        })
+        c.NoContent(http.StatusInternalServerError)
 	}
 
 	// Response success api service
