@@ -13,7 +13,7 @@ import (
 )
 
 type GlobalSettings struct {
-	Messages []string       `json:"messages"`
+	Message string `json:"message"`
 	Success  bool           `json:"success"`
 	Setting  models.Setting `json:"setting"`
 	User     models.User    `json:"user"`
@@ -45,7 +45,7 @@ func GetGlobalSettings(c echo.Context) error {
 		User:     user,
 		Setting:  con,
 		Success:  true,
-		Messages: []string{"ok"},
+		Message: "OK",
 	})
 }
 
@@ -98,6 +98,7 @@ func UpdateSetting(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Data:    con.ID,
+		Message: "OK",
 	})
 }
 
@@ -152,6 +153,7 @@ func UploadLogoSetting(c echo.Context) error {
     return c.JSON(http.StatusOK, utilities.Response{
         Success: true,
         Data:    setting.ID,
+        Message: "OK",
     })
 }
 
