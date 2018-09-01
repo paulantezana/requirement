@@ -114,6 +114,46 @@ func GetQuotations(c echo.Context) error {
 	})
 }
 
+type purchaseOrderResponse struct {
+	Code        string  `json:"code"`
+	Amount      string  `json:"amount"`
+	UnitMeasure string  `json:"unit_measure"`
+	Description string  `json:"description"`
+	UnitPrice   float32 `json:"unit_price"`
+	Total       float32 `json:"total"`
+}
+
+func PurchaseOrder(c echo.Context) error {
+	// Get data request
+	quotation := models.Quotation{}
+	if err := c.Bind(&quotation); err != nil {
+		return err
+	}
+
+	// Get connection
+	db := config.GetConnection()
+	defer db.Close()
+
+	purchaseOrderResponses := make([]purchaseOrderResponse, 0)
+	if err := db.Table("quotations").
+		Select("quotations.id, requires.amount, requires.unit_measure, products.name as description, quotation_details.unit_price, requires.amount * quotation_details.unit_price as total").
+		Joins("INNER JOIN quotation_details on quotations.id = quotation_details.quotation_id").
+		Joins("INNER JOIN requires on quotation_details.require_id = requires.id").
+		Joins("INNER JOIN products on requires.product_id = products.id").
+		Where("winner = true AND quotations.requirement_id = ?", quotation.RequirementID).
+		Scan(&purchaseOrderResponses).Error; err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	total := len(purchaseOrderResponses)
+
+	// Return response
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
+		Success: true,
+		Data:    purchaseOrderResponses,
+		Total:   uint(total),
+	})
+}
+
 type ctResponseRequire struct {
 	ID          uint    `json:"id"`
 	Amount      float32 `json:"amount"`
@@ -124,22 +164,22 @@ type ctResponseRequire struct {
 
 // Quotations
 type ctResponseQuotation struct {
-	QuotationID     uint      `json:"quotation_id"`
-	UnitPrice       float32   `json:"unit_price"`
-	Sequence        uint      `json:"sequence"`
+	QuotationID uint    `json:"quotation_id"`
+	UnitPrice   float32 `json:"unit_price"`
+	Sequence    uint    `json:"sequence"`
 }
 
 // Providers
 type ctResponseProvider struct {
-    Name string `json:"name"`
-    Manager string `json:"manager"`
-    DeliverDate time.Time `json:"deliver_date"`
-} 
+	Name        string    `json:"name"`
+	Manager     string    `json:"manager"`
+	DeliverDate time.Time `json:"deliver_date"`
+}
 
 type comparativeTable struct {
 	CTResponseQuotations []ctResponseQuotation `json:"ct_response_quotations"`
 	CTResponseRequires   []ctResponseRequire   `json:"ct_response_requires"`
-    CTResponseProviders []ctResponseProvider `json:"ct_response_providers"`
+	CTResponseProviders  []ctResponseProvider  `json:"ct_response_providers"`
 }
 
 func ComparativeTable(c echo.Context) error {
@@ -153,9 +193,9 @@ func ComparativeTable(c echo.Context) error {
 	db := config.GetConnection()
 	defer db.Close()
 
-    // -----------------------------------------------------------
-    // Query Requires ------------------------------------------
-    // -----------------------------------------------------------
+	// -----------------------------------------------------------
+	// Query Requires ------------------------------------------
+	// -----------------------------------------------------------
 	ctResponseRequires := make([]ctResponseRequire, 0)
 	if err := db.Table("requires").
 		Select("requires.id, products.name, requires.amount, requires.unit_measure").
@@ -180,18 +220,18 @@ func ComparativeTable(c echo.Context) error {
 		return err
 	}
 
-    // -----------------------------------------------------------
-    // Query Providers  ------------------------------------------
-    // -----------------------------------------------------------
-    ctResponseProviders := make([]ctResponseProvider, 0)
-    if err := db.Table("quotations").
-        Select("providers.name, providers.manager, quotations.deliver_date").
-        Joins("INNER JOIN providers on quotations.provider_id = providers.id").
-        Where("quotations.requirement_id = ?", requirement.ID).
-        Order("quotations.winner_level asc").
-        Scan(&ctResponseProviders).Error; err != nil {
-        return err
-    }
+	// -----------------------------------------------------------
+	// Query Providers  ------------------------------------------
+	// -----------------------------------------------------------
+	ctResponseProviders := make([]ctResponseProvider, 0)
+	if err := db.Table("quotations").
+		Select("providers.name, providers.manager, quotations.deliver_date").
+		Joins("INNER JOIN providers on quotations.provider_id = providers.id").
+		Where("quotations.requirement_id = ?", requirement.ID).
+		Order("quotations.winner_level asc").
+		Scan(&ctResponseProviders).Error; err != nil {
+		return err
+	}
 
 	// Add column Sequence
 	sequence := 1
@@ -210,7 +250,7 @@ func ComparativeTable(c echo.Context) error {
 		Data: comparativeTable{
 			CTResponseQuotations: ctResponseQuotations,
 			CTResponseRequires:   ctResponseRequires,
-			CTResponseProviders: ctResponseProviders,
+			CTResponseProviders:  ctResponseProviders,
 		},
 	})
 }

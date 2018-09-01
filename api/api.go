@@ -6,14 +6,14 @@ import (
 	"github.com/paulantezana/requirement/config"
 	"github.com/paulantezana/requirement/controller"
 	"github.com/paulantezana/requirement/utilities"
-    "net/http"
+	"net/http"
 )
 
 // PublicApi public routes
 func PublicApi(e *echo.Echo) {
-    e.GET("/", func(context echo.Context) error {
-        return context.NoContent(http.StatusOK)
-    })
+	e.GET("/", func(context echo.Context) error {
+		return context.NoContent(http.StatusOK)
+	})
 	pb := e.Group("/api/v1")
 
 	pb.POST("/user/login", controller.Login)
@@ -59,8 +59,8 @@ func ProtectedApi(e *echo.Echo) {
 	ar.DELETE("/provider", controller.DeleteProvider)
 	ar.POST("/provider/search", controller.GetProviderSearch)
 	ar.POST("/provider/validate/ruc", controller.ValidateRucProvider)
-    ar.GET("/provider/download/template", controller.GetTempUploadProvider)
-    ar.POST("/provider/upload/template", controller.SetTempUploadProvider)
+	ar.GET("/provider/download/template", controller.GetTempUploadProvider)
+	ar.POST("/provider/upload/template", controller.SetTempUploadProvider)
 
 	// Crud Requirement
 	ar.POST("/requirement/all", controller.GetRequirements)
@@ -83,14 +83,15 @@ func ProtectedApi(e *echo.Echo) {
 	ar.PUT("/quotation", controller.UpdateQuotation)
 	ar.DELETE("/quotation", controller.DeleteQuotation)
 	ar.PUT("/quotation/set/winner", controller.SetWinnerQuotation)
-	ar.POST("/quotation/comparativetable", controller.ComparativeTable)
+	ar.POST("/quotation/comparativeTable", controller.ComparativeTable)
+	ar.POST("/quotation/purchaseOrder", controller.PurchaseOrder)
 
 	// Global settings
 	ar.POST("/setting/global", controller.GetGlobalSettings)
 	ar.GET("/setting", controller.GetSetting)
 	ar.PUT("/setting", controller.UpdateSetting)
-    ar.POST("/setting/upload/logo", controller.UploadLogoSetting)
-    ar.GET("/setting/download/logo", controller.DownloadLogoSetting)
+	ar.POST("/setting/upload/logo", controller.UploadLogoSetting)
+	ar.GET("/setting/download/logo", controller.DownloadLogoSetting)
 
 	// Statistic
 	ar.POST("/statistic/top/provider/winners", controller.TopProviderWinner)

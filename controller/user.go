@@ -98,20 +98,20 @@ func ForgotSearch(c echo.Context) error {
 	// SEND EMAIL get html template
 	t, err := template.ParseFiles("./templates/email.html")
 	if err != nil {
-        c.NoContent(http.StatusInternalServerError)
+		c.NoContent(http.StatusInternalServerError)
 	}
 
 	// SEND EMAIL new buffer
 	buf := new(bytes.Buffer)
 	err = t.Execute(buf, user)
 	if err != nil {
-        c.NoContent(http.StatusInternalServerError)
+		c.NoContent(http.StatusInternalServerError)
 	}
 
 	// SEND EMAIL
 	err = config.SendEmail(user.Email, fmt.Sprint(key)+" es el código de recuperación de tu cuenta en RQSystem", buf.String())
 	if err != nil {
-        c.NoContent(http.StatusInternalServerError)
+		c.NoContent(http.StatusInternalServerError)
 	}
 
 	// Response success api service
@@ -155,17 +155,17 @@ func ForgotChange(c echo.Context) error {
 	defer db.Close()
 
 	// Validate
-    currentUser := models.User{}
+	currentUser := models.User{}
 	if err := db.Where("id = ?", user.ID).First(&currentUser).Error; err != nil {
-        return c.JSON(http.StatusOK, utilities.Response{
-            Message: fmt.Sprintf("No se encontro ningun registro con el id %d",user.ID),
-        })
+		return c.JSON(http.StatusOK, utilities.Response{
+			Message: fmt.Sprintf("No se encontro ningun registro con el id %d", user.ID),
+		})
 	}
 
 	// Encrypted old password
-    cc := sha256.Sum256([]byte(user.Password))
-    pwd := fmt.Sprintf("%x", cc)
-    user.Password = pwd
+	cc := sha256.Sum256([]byte(user.Password))
+	pwd := fmt.Sprintf("%x", cc)
+	user.Password = pwd
 
 	// Update
 	if err := db.Model(&user).Update(user).Error; err != nil {
@@ -339,7 +339,7 @@ func UpdateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Data:    newUser.ID,
-        Message: fmt.Sprintf("Los datos del usuario %s, se actualizarón correctamente",oldUser.UserName),
+		Message: fmt.Sprintf("Los datos del usuario %s, se actualizarón correctamente", oldUser.UserName),
 	})
 }
 
@@ -372,7 +372,7 @@ func DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Data:    user.ID,
-        Message: fmt.Sprintf("El usuario %s, se elimino correctamente",user.UserName),
+		Message: fmt.Sprintf("El usuario %s, se elimino correctamente", user.UserName),
 	})
 }
 
@@ -428,7 +428,7 @@ func UploadAvatarUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Data:    user.ID,
-		Message: fmt.Sprintf("El avatar del usuario %s, se subió correctamente",user.UserName),
+		Message: fmt.Sprintf("El avatar del usuario %s, se subió correctamente", user.UserName),
 	})
 }
 
@@ -467,57 +467,57 @@ func ResetPasswordUser(c echo.Context) error {
 }
 
 func ChangePasswordUser(c echo.Context) error {
-    // Get data request
-    user := models.User{}
-    if err := c.Bind(&user); err != nil {
-        return err
-    }
+	// Get data request
+	user := models.User{}
+	if err := c.Bind(&user); err != nil {
+		return err
+	}
 
-    // get connection
-    db := config.GetConnection()
-    defer db.Close()
+	// get connection
+	db := config.GetConnection()
+	defer db.Close()
 
-    // Validation user exist
-    aux := models.User{ID: user.ID}
-    if db.First(&aux, "id = ?", aux.ID).RecordNotFound() {
-        return c.JSON(http.StatusOK, utilities.Response{
-            Message: fmt.Sprintf("No se encontró el registro con id %d", aux.ID),
-        })
-    }
+	// Validation user exist
+	aux := models.User{ID: user.ID}
+	if db.First(&aux, "id = ?", aux.ID).RecordNotFound() {
+		return c.JSON(http.StatusOK, utilities.Response{
+			Message: fmt.Sprintf("No se encontró el registro con id %d", aux.ID),
+		})
+	}
 
-    // Change password
-    if len(user.Password) > 0 {
-        // Validate empty length old password
-        if len(user.OldPassword) == 0 {
-            return c.JSON(http.StatusOK, utilities.Response{
-                Message: "Ingrese la contraseña antigua",
-            })
-        }
+	// Change password
+	if len(user.Password) > 0 {
+		// Validate empty length old password
+		if len(user.OldPassword) == 0 {
+			return c.JSON(http.StatusOK, utilities.Response{
+				Message: "Ingrese la contraseña antigua",
+			})
+		}
 
-        // Hash old password
-        ccc := sha256.Sum256([]byte(user.OldPassword))
-        old := fmt.Sprintf("%x", ccc)
+		// Hash old password
+		ccc := sha256.Sum256([]byte(user.OldPassword))
+		old := fmt.Sprintf("%x", ccc)
 
-        // validate old password
-        if db.Where("password = ?", old).First(&aux).RecordNotFound() {
-            return c.JSON(http.StatusOK, utilities.Response{
-                Message: "La contraseña antigua es incorrecta",
-            })
-        }
+		// validate old password
+		if db.Where("password = ?", old).First(&aux).RecordNotFound() {
+			return c.JSON(http.StatusOK, utilities.Response{
+				Message: "La contraseña antigua es incorrecta",
+			})
+		}
 
-        // Set and hash new password
-        cc := sha256.Sum256([]byte(user.Password))
-        pwd := fmt.Sprintf("%x", cc)
-        user.Password = pwd
-    }
+		// Set and hash new password
+		cc := sha256.Sum256([]byte(user.Password))
+		pwd := fmt.Sprintf("%x", cc)
+		user.Password = pwd
+	}
 
-    // Update user in database
-    if err := db.Model(&user).Update(user).Error; err != nil {
-        return err
-    }
+	// Update user in database
+	if err := db.Model(&user).Update(user).Error; err != nil {
+		return err
+	}
 
-    return c.JSON(http.StatusOK, utilities.Response{
-        Success: true,
-        Message: fmt.Sprintf("La contraseña del usuario %s se cambio exitosamente", aux.UserName),
-    })
+	return c.JSON(http.StatusOK, utilities.Response{
+		Success: true,
+		Message: fmt.Sprintf("La contraseña del usuario %s se cambio exitosamente", aux.UserName),
+	})
 }

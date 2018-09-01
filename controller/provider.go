@@ -2,16 +2,16 @@ package controller
 
 import (
 	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/requirement/config"
 	"github.com/paulantezana/requirement/models"
 	"github.com/paulantezana/requirement/utilities"
+	"io"
 	"net/http"
-    "os"
-    "io"
-    "path/filepath"
-    "github.com/360EntSecGroup-Skylar/excelize"
-    "strings"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 func GetProviders(c echo.Context) error {
@@ -215,111 +215,110 @@ func DeleteProvider(c echo.Context) error {
 }
 
 func ValidateRucProvider(c echo.Context) error {
-    // Get data request
-    provider := models.Provider{}
-    if err := c.Bind(&provider); err != nil {
-        return err
-    }
+	// Get data request
+	provider := models.Provider{}
+	if err := c.Bind(&provider); err != nil {
+		return err
+	}
 
-    // get connection
-    db := config.GetConnection()
-    defer db.Close()
+	// get connection
+	db := config.GetConnection()
+	defer db.Close()
 
-    // Validations
-    if err := db.Where("ruc = ?", provider.RUC).First(&provider).Error; err != nil {
-        return c.JSON(http.StatusOK, utilities.Response{
-            Success: true,
-            Message: "OK",
-        })
-    }
+	// Validations
+	if err := db.Where("ruc = ?", provider.RUC).First(&provider).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{
+			Success: true,
+			Message: "OK",
+		})
+	}
 
-    // Return response
-    return c.JSON(http.StatusOK, utilities.Response{
-        Success: false,
-        Message: fmt.Sprintf("El número de RUC ya esta registrado"),
-    })
+	// Return response
+	return c.JSON(http.StatusOK, utilities.Response{
+		Success: false,
+		Message: fmt.Sprintf("El número de RUC ya esta registrado"),
+	})
 }
 
-
 func GetTempUploadProvider(c echo.Context) error {
-    return c.File("templates/uploadProviderTemplate.xlsx")
+	return c.File("templates/uploadProviderTemplate.xlsx")
 }
 
 func SetTempUploadProvider(c echo.Context) error {
-    // Source
-    file, err := c.FormFile("file")
-    if err != nil {
-        return err
-    }
-    src, err := file.Open()
-    if err != nil {
-        return err
-    }
-    defer src.Close()
+	// Source
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
 
-    // Destination
-    auxDir := "temp/provider" + filepath.Ext(file.Filename)
-    dst, err := os.Create(auxDir)
-    if err != nil {
-        return err
-    }
-    defer dst.Close()
+	// Destination
+	auxDir := "temp/provider" + filepath.Ext(file.Filename)
+	dst, err := os.Create(auxDir)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
 
-    // Copy
-    if _, err = io.Copy(dst, src); err != nil {
-        return err
-    }
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		return err
+	}
 
-    // ---------------------
-    // Read File whit Excel
-    // ---------------------
-    xlsx, err := excelize.OpenFile(auxDir)
-    if err != nil {
-        return err
-    }
+	// ---------------------
+	// Read File whit Excel
+	// ---------------------
+	xlsx, err := excelize.OpenFile(auxDir)
+	if err != nil {
+		return err
+	}
 
-    // Prepare
-    providers := make([]models.Provider, 0)
-    ignoreCols := 1
+	// Prepare
+	providers := make([]models.Provider, 0)
+	ignoreCols := 1
 
-    // Get all the rows in the proveedores(Sheet).
-    rows := xlsx.GetRows("proveedores")
-    for k, row := range rows {
-        if k >= ignoreCols {
-            providers = append(providers, models.Provider{
-                RUC:      strings.TrimSpace(row[0]),
-                Name: strings.TrimSpace(row[1]),
-                Manager: strings.TrimSpace(row[5]),
-                Email:   strings.TrimSpace(row[5]),
-                Phone:   strings.TrimSpace(row[5]),
-                Address:   strings.TrimSpace(row[5]),
-                State:   true,
-            })
-        }
-    }
+	// Get all the rows in the proveedores(Sheet).
+	rows := xlsx.GetRows("proveedores")
+	for k, row := range rows {
+		if k >= ignoreCols {
+			providers = append(providers, models.Provider{
+				RUC:     strings.TrimSpace(row[0]),
+				Name:    strings.TrimSpace(row[1]),
+				Manager: strings.TrimSpace(row[5]),
+				Email:   strings.TrimSpace(row[5]),
+				Phone:   strings.TrimSpace(row[5]),
+				Address: strings.TrimSpace(row[5]),
+				State:   true,
+			})
+		}
+	}
 
-    // get connection
-    db := config.GetConnection()
-    defer db.Close()
+	// get connection
+	db := config.GetConnection()
+	defer db.Close()
 
-    // Insert providers in database
-    tr := db.Begin()
-    for _, provider := range providers {
-        if err := tr.Create(&provider).Error; err != nil {
-            tr.Rollback()
-            return c.JSON(http.StatusOK, utilities.Response{
-                Success: false,
-                Message: fmt.Sprintf("Ocurrió un error al insertar el proveedores %s con "+
-                    "RUC: %s es posible que este proveedor ya este en la base de datos o los datos son incorrectos, "+
-                    "Error: %s, no se realizo ninguna cambio en la base de datos", provider.Name, provider.RUC, err),
-            })
-        }
-    }
-    tr.Commit()
+	// Insert providers in database
+	tr := db.Begin()
+	for _, provider := range providers {
+		if err := tr.Create(&provider).Error; err != nil {
+			tr.Rollback()
+			return c.JSON(http.StatusOK, utilities.Response{
+				Success: false,
+				Message: fmt.Sprintf("Ocurrió un error al insertar el proveedores %s con "+
+					"RUC: %s es posible que este proveedor ya este en la base de datos o los datos son incorrectos, "+
+					"Error: %s, no se realizo ninguna cambio en la base de datos", provider.Name, provider.RUC, err),
+			})
+		}
+	}
+	tr.Commit()
 
-    // Response success
-    return c.JSON(http.StatusOK, utilities.Response{
-        Success: true,
-        Message: fmt.Sprintf("Se guardo %d registros den la base de datos", len(providers)),
-    })
+	// Response success
+	return c.JSON(http.StatusOK, utilities.Response{
+		Success: true,
+		Message: fmt.Sprintf("Se guardo %d registros den la base de datos", len(providers)),
+	})
 }

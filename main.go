@@ -84,7 +84,7 @@ func migration() {
 	user := models.User{
 		UserName: "admin",
 		Password: pwd,
-		Profile: "admin",
+		Profile:  "admin",
 		Email:    "yoel.antezana@gmail.com",
 	}
 	// insert database
@@ -99,7 +99,7 @@ func migration() {
 		Item:       10,
 		Company:    "REQUIREMENT WEB",
 		Quotations: 3,
-		Logo: "static/logo.png",
+		Logo:       "static/logo.png",
 	}
 	// Insert database
 	if cg.ID == 0 {
