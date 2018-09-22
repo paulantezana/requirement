@@ -24,7 +24,7 @@ func ExportRequirementAll(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	xlsx.SetCellValue("Sheet1", "A5", con.Company)
+	xlsx.SetCellValue("Sheet1", "A5", con.CompanyName)
 	xlsx.SetCellValue("Sheet1", "A6", con.City)
 	xlsx.SetCellValue("Sheet1", "A8", "Requerimiento")
 

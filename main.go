@@ -96,10 +96,11 @@ func migration() {
 	cg := models.Setting{}
 	db.First(&cg)
 	co := models.Setting{
-		Item:       10,
-		Company:    "REQUIREMENT WEB",
-		Quotations: 3,
-		Logo:       "static/logo.png",
+		Item:             10,
+		CompanyName:      "REQUIREMENT WEB",
+		CompanyShortName: "RW",
+		Quotations:       3,
+		Logo:             "static/logo.png",
 	}
 	// Insert database
 	if cg.ID == 0 {

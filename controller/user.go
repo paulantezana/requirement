@@ -138,6 +138,7 @@ func ForgotValidate(c echo.Context) error {
 		})
 	}
 
+	// Response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Data:    user.ID,
