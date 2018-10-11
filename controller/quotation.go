@@ -114,13 +114,21 @@ func GetQuotations(c echo.Context) error {
 	})
 }
 
+type purchaseOrder struct {
+	Code          string  `json:"code"`
+	Amount        string  `json:"amount"`
+	ProviderID    uint    `json:"-"`
+	RequirementID uint    `json:"-"`
+	UnitMeasure   string  `json:"unit_measure"`
+	Description   string  `json:"description"`
+	UnitPrice     float32 `json:"unit_price"`
+	Total         float32 `json:"total"`
+}
+
 type purchaseOrderResponse struct {
-	Code        string  `json:"code"`
-	Amount      string  `json:"amount"`
-	UnitMeasure string  `json:"unit_measure"`
-	Description string  `json:"description"`
-	UnitPrice   float32 `json:"unit_price"`
-	Total       float32 `json:"total"`
+	PurchaseOrder []purchaseOrder    `json:"purchase_order"`
+	Provider      models.Provider    `json:"provider"`
+	Requirement   models.Requirement `json:"requirement"`
 }
 
 func PurchaseOrder(c echo.Context) error {
@@ -134,23 +142,35 @@ func PurchaseOrder(c echo.Context) error {
 	db := config.GetConnection()
 	defer db.Close()
 
-	purchaseOrderResponses := make([]purchaseOrderResponse, 0)
+	purchaseOrders := make([]purchaseOrder, 0)
 	if err := db.Table("quotations").
-		Select("quotations.id, requires.amount, requires.unit_measure, products.name as description, quotation_details.unit_price, requires.amount * quotation_details.unit_price as total").
+		Select("quotations.id, quotations.provider_id, quotations.requirement_id, requires.amount, requires.unit_measure, products.name as description, quotation_details.unit_price, requires.amount * quotation_details.unit_price as total").
 		Joins("INNER JOIN quotation_details on quotations.id = quotation_details.quotation_id").
 		Joins("INNER JOIN requires on quotation_details.require_id = requires.id").
 		Joins("INNER JOIN products on requires.product_id = products.id").
 		Where("winner = true AND quotations.requirement_id = ?", quotation.RequirementID).
-		Scan(&purchaseOrderResponses).Error; err != nil {
+		Scan(&purchaseOrders).Error; err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
-	total := len(purchaseOrderResponses)
+
+	provider := models.Provider{}
+	if err := db.First(&provider, purchaseOrders[0].ProviderID).Error; err != nil {
+		return err
+	}
+
+	requirement := models.Requirement{}
+	if err := db.First(&requirement, purchaseOrders[0].RequirementID).Error; err != nil {
+		return err
+	}
 
 	// Return response
-	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
+	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    purchaseOrderResponses,
-		Total:   uint(total),
+		Data: purchaseOrderResponse{
+			PurchaseOrder: purchaseOrders,
+			Provider:      provider,
+			Requirement:   requirement,
+		},
 	})
 }
 
